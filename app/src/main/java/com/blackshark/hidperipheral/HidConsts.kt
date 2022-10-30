@@ -23,6 +23,10 @@ object HidConsts {
     private val inputReportQueue: Queue<HidReport> = ConcurrentLinkedQueue()
     var ModifierByte: Byte = 0x00
     var KeyByte: Byte = 0x00
+    var gamepadXByte: Byte = 0x00
+    var gamepadYByte: Byte = 0x00
+    var gamepadZByte: Byte = 0x00
+    var gamepadButtonByte: Byte = 0x00
     fun cleanKbd() {
         sendKeyReport(byteArrayOf(0, 0))
     }
@@ -191,6 +195,56 @@ object HidConsts {
         addInputReport(report)
     }
 
+
+    fun gamepadKeyDown(usageStr: String) {
+        if (!TextUtils.isEmpty(usageStr)) {
+            val key = usageStr.toInt().toByte()
+            synchronized(HidConsts::class.java) {
+                gamepadButtonByte = gamepadButtonByte or key
+                sendGamepadReport(byteArrayOf(
+                    gamepadXByte,
+                    gamepadYByte,
+                    gamepadZByte,
+                    gamepadButtonByte
+                ))
+            }
+        }
+    }
+
+    fun gamepadKeyUp(usageStr: String) {
+        if (!TextUtils.isEmpty(usageStr)) {
+            val key = usageStr.toInt().toByte()
+            synchronized(HidConsts::class.java) {
+                gamepadButtonByte = gamepadButtonByte and key.inv()
+                sendGamepadReport(byteArrayOf(
+                    gamepadXByte,
+                    gamepadYByte,
+                    gamepadZByte,
+                    gamepadButtonByte
+                ))
+            }
+        }
+    }
+
+    fun gamepadGyro(x: Byte, y: Byte, z: Byte) {
+        synchronized(HidConsts::class.java) {
+            gamepadXByte = x
+            gamepadYByte = y
+            gamepadZByte = z
+            sendGamepadReport(byteArrayOf(
+                gamepadXByte,
+                gamepadYByte,
+                gamepadZByte,
+                gamepadButtonByte
+            ))
+        }
+    }
+
+    private fun sendGamepadReport(reportData: ByteArray) {
+        val report = HidReport(HidReport.DeviceType.Gamepad, 0x03.toByte(), reportData)
+        addInputReport(report)
+    }
+
     @JvmField
     val Descriptor = byteArrayOf(
         0x05.toByte(),
@@ -303,6 +357,31 @@ object HidConsts {
         0x03.toByte(),
         0x91.toByte(),
         0x03.toByte(),
-        0xc0.toByte()
+        0xc0.toByte(),
+
+        0x05.toByte(), 0x01.toByte(),        // Usage Page (Generic Desktop Ctrls)
+        0x09.toByte(), 0x05.toByte(),        // Usage (Game Pad)
+        0xA1.toByte(), 0x01.toByte(),        // Collection (Application)
+        0xA1.toByte(), 0x00.toByte(),        //   Collection (Physical)
+        0x85.toByte(), 0x03.toByte(),        //     Report ID (3)
+        0x05.toByte(), 0x01.toByte(),        //     Usage Page (Generic Desktop Ctrls)
+        0x09.toByte(), 0x30.toByte(),        //     Usage (X)
+        0x09.toByte(), 0x31.toByte(),        //     Usage (Y)
+        0x09.toByte(), 0x32.toByte(),        //     Usage (Z)
+        0x15.toByte(), 0x81.toByte(),        //     Logical Minimum (-127)
+        0x25.toByte(), 0x7F.toByte(),        //     Logical Maximum (127)
+        0x75.toByte(), 0x08.toByte(),        //     Report Size (8)
+        0x95.toByte(), 0x03.toByte(),        //     Report Count (3)
+        0x81.toByte(), 0x02.toByte(),        //     Input (Data.toByte(),Var.toByte(),Abs.toByte(),No Wrap.toByte(),Linear.toByte(),Preferred State.toByte(),No Null Position)
+        0x05.toByte(), 0x09.toByte(),        //     Usage Page (Button)
+        0x19.toByte(), 0x01.toByte(),        //     Usage Minimum (0x01)
+        0x29.toByte(), 0x08.toByte(),        //     Usage Maximum (0x08)
+        0x15.toByte(), 0x00.toByte(),        //     Logical Minimum (0)
+        0x25.toByte(), 0x01.toByte(),        //     Logical Maximum (1)
+        0x75.toByte(), 0x01.toByte(),        //     Report Size (1)
+        0x95.toByte(), 0x08.toByte(),        //     Report Count (8)
+        0x81.toByte(), 0x02.toByte(),        //     Input (Data.toByte(),Var.toByte(),Abs.toByte(),No Wrap.toByte(),Linear.toByte(),Preferred State.toByte(),No Null Position)
+        0xC0.toByte(),              //   End Collection
+        0xC0.toByte()               // End Collection
     )
 }

@@ -4,7 +4,7 @@ import com.blackshark.hidperipheral.HidReport.DeviceType
 
 class HidReport(var deviceType: DeviceType, var ReportId: Byte, var ReportData: ByteArray) {
     enum class DeviceType {
-        None, Mouse, Keyboard
+        None, Mouse, Keyboard, Gamepad
     }
 
     enum class State {

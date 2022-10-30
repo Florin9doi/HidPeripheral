@@ -25,6 +25,9 @@
             android:name=".MouseActivity"
             android:exported="false" />
         <activity
+            android:name=".GamepadActivity"
+            android:exported="false" />
+        <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>

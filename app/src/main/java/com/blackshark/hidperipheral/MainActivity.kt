@@ -72,6 +72,12 @@ class MainActivity : AppCompatActivity(), HidUtils.ConnectionStateChangeListener
                 startActivity(Intent(this, KeyboardActivity::class.java))
             }
         }
+
+        binding.btnGamepad.setOnClickListener {
+            if (HidUtils.isConnected()) {
+                startActivity(Intent(this, GamepadActivity::class.java))
+            }
+        }
     }
 
     private fun start() {
