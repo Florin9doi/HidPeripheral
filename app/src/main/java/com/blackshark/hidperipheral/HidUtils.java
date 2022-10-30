@@ -32,7 +32,6 @@ public class HidUtils {
     public static void registerApp(Context context) {
         if (!isRegister) {
             BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-            bluetoothAdapter.setName("Peripheral MK");
             bluetoothAdapter.getProfileProxy(context, mProfileServiceListener, BluetoothProfile.HID_DEVICE);
         }
     }

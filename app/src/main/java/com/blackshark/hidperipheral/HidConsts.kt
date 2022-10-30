@@ -25,10 +25,8 @@ object HidConsts {
     var KeyByte: Byte = 0x00
     fun cleanKbd() {
         sendKeyReport(byteArrayOf(0, 0))
-        Alted = false
     }
 
-    var Alted = false
     private fun addInputReport(inputReport: HidReport?) {
         if (inputReport != null) {
             inputReportQueue.offer(inputReport)
