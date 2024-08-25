@@ -78,6 +78,12 @@ class MainActivity : AppCompatActivity(), HidUtils.ConnectionStateChangeListener
                 startActivity(Intent(this, GamepadActivity::class.java))
             }
         }
+
+        binding.btnJoystick.setOnClickListener {
+            if (HidUtils.isConnected()) {
+                startActivity(Intent(this, JoystickActivity::class.java))
+            }
+        }
     }
 
     private fun start() {

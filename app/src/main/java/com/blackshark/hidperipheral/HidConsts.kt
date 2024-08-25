@@ -27,6 +27,9 @@ object HidConsts {
     var gamepadYByte: Byte = 0x00
     var gamepadZByte: Byte = 0x00
     var gamepadButtonByte: Byte = 0x00
+    var joystickXByte: Byte = 0x00
+    var joystickYByte: Byte = 0x00
+    var joystickButtonByte: Byte = 0x00
     fun cleanKbd() {
         sendKeyReport(byteArrayOf(0, 0))
     }
@@ -195,7 +198,6 @@ object HidConsts {
         addInputReport(report)
     }
 
-
     fun gamepadKeyDown(usageStr: String) {
         if (!TextUtils.isEmpty(usageStr)) {
             val key = usageStr.toInt().toByte()
@@ -245,6 +247,45 @@ object HidConsts {
         addInputReport(report)
     }
 
+    fun joystickKeyDown(usageStr: String) {
+        if (!TextUtils.isEmpty(usageStr)) {
+            val key = usageStr.toInt().toByte()
+            synchronized(HidConsts::class.java) {
+                joystickXByte = key
+                sendJoystickReport(byteArrayOf(
+                    joystickXByte,
+                    joystickYByte,
+                    0x00,
+                    joystickButtonByte,
+                    0x00,
+                    0x00
+                ))
+            }
+        }
+    }
+
+    fun joystickKeyUp(usageStr: String) {
+        if (!TextUtils.isEmpty(usageStr)) {
+            val key = usageStr.toInt().toByte()
+            synchronized(HidConsts::class.java) {
+                joystickXByte = key
+                sendJoystickReport(byteArrayOf(
+                    joystickXByte,
+                    joystickYByte,
+                    0x00,
+                    joystickButtonByte,
+                    0x00,
+                    0x00
+                ))
+            }
+        }
+    }
+
+    private fun sendJoystickReport(reportData: ByteArray) {
+        val report = HidReport(HidReport.DeviceType.Joystick, 0x03.toByte(), reportData)
+        addInputReport(report)
+    }
+
     @JvmField
     val Descriptor = byteArrayOf(
         0x05.toByte(), 0x01.toByte(),        // Usage Page (Generic Desktop Ctrls)
@@ -275,6 +316,7 @@ object HidConsts {
         0x81.toByte(), 0x06.toByte(),        //     Input (Data,Var,Rel,No Wrap,Linear,Preferred State,No Null Position)
         0xC0.toByte(),                       //   End Collection
         0xC0.toByte(),                       // End Collection
+
         0x05.toByte(), 0x01.toByte(),        // Usage Page (Generic Desktop Ctrls)
         0x09.toByte(), 0x06.toByte(),        // Usage (Keyboard)
         0xA1.toByte(), 0x01.toByte(),        // Collection (Application)
@@ -328,6 +370,41 @@ object HidConsts {
         0x95.toByte(), 0x08.toByte(),        //     Report Count (8)
         0x81.toByte(), 0x02.toByte(),        //     Input (Data.toByte(),Var.toByte(),Abs.toByte(),No Wrap.toByte(),Linear.toByte(),Preferred State.toByte(),No Null Position)
         0xC0.toByte(),                       //   End Collection
-        0xC0.toByte()                        // End Collection
+        0xC0.toByte(),                       // End Collection
+
+        0x05.toByte(), 0x01.toByte(),        // Usage Page (Generic Desktop Ctrls)
+        0x09.toByte(), 0x04.toByte(),        // Usage (Joystick)
+        0xA1.toByte(), 0x01.toByte(),        // Collection (Application)
+        0x85.toByte(), 0x04.toByte(),        //   Report ID (4)
+        0x09.toByte(), 0x01.toByte(),        //   Usage (Pointer)
+        0xA1.toByte(), 0x00.toByte(),        //   Collection (Physical)
+        0x09.toByte(), 0x30.toByte(),        //     Usage (X)
+        0x09.toByte(), 0x31.toByte(),        //     Usage (Y)
+        0x15.toByte(), 0x00.toByte(),        //     Logical Minimum (0)
+        0x26.toByte(), 0xFF.toByte(), 0x00.toByte(),
+                                             //     Logical Maximum (255)
+        0x75.toByte(), 0x08.toByte(),        //     Report Size (8)
+        0x95.toByte(), 0x02.toByte(),        //     Report Count (2)
+        0x81.toByte(), 0x02.toByte(),        //     Input (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position)
+        0xC0.toByte(),                       //   End Collection
+        0x75.toByte(), 0x08.toByte(),        //   Report Size (8)
+        0x95.toByte(), 0x01.toByte(),        //   Report Count (1)
+        0x81.toByte(), 0x01.toByte(),        //   Input (Const,Array,Abs,No Wrap,Linear,Preferred State,No Null Position)
+        0x05.toByte(), 0x09.toByte(),        //   Usage Page (Button)
+        0x19.toByte(), 0x01.toByte(),        //   Usage Minimum (0x01)
+        0x29.toByte(), 0x06.toByte(),        //   Usage Maximum (0x06)
+        0x15.toByte(), 0x00.toByte(),        //   Logical Minimum (0)
+        0x25.toByte(), 0x01.toByte(),        //   Logical Maximum (1)
+        0x35.toByte(), 0x00.toByte(),        //   Physical Minimum (0)
+        0x45.toByte(), 0x01.toByte(),        //   Physical Maximum (1)
+        0x75.toByte(), 0x01.toByte(),        //   Report Size (1)
+        0x95.toByte(), 0x06.toByte(),        //   Report Count (6)
+        0x81.toByte(), 0x02.toByte(),        //   Input (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position)
+        0x95.toByte(), 0x02.toByte(),        //   Report Count (2)
+        0x81.toByte(), 0x01.toByte(),        //   Input (Const,Array,Abs,No Wrap,Linear,Preferred State,No Null Position)
+        0x75.toByte(), 0x08.toByte(),        //   Report Size (8)
+        0x95.toByte(), 0x02.toByte(),        //   Report Count (2)
+        0x81.toByte(), 0x01.toByte(),        //   Input (Const,Array,Abs,No Wrap,Linear,Preferred State,No Null Position)
+        0xC0.toByte(),                       // End Collection
     )
 }
