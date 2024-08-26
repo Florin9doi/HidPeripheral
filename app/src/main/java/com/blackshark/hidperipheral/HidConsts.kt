@@ -4,6 +4,7 @@ import android.bluetooth.BluetoothHidDevice
 import android.content.Context
 import android.os.Handler
 import android.text.TextUtils
+import android.util.Log
 import java.util.*
 import java.util.concurrent.ConcurrentLinkedQueue
 import kotlin.experimental.and
@@ -27,8 +28,8 @@ object HidConsts {
     var gamepadYByte: Byte = 0x00
     var gamepadZByte: Byte = 0x00
     var gamepadButtonByte: Byte = 0x00
-    var joystickXByte: Byte = 0x00
-    var joystickYByte: Byte = 0x00
+    var joystickBrakeByte: Byte = 0x00
+    var joystickPowerByte: Byte = 0x00
     var joystickButtonByte: Byte = 0x00
     fun cleanKbd() {
         sendKeyReport(byteArrayOf(0, 0))
@@ -251,10 +252,17 @@ object HidConsts {
         if (!TextUtils.isEmpty(usageStr)) {
             val key = usageStr.toInt().toByte()
             synchronized(HidConsts::class.java) {
-                joystickXByte = key
+                if (key == 0x81.toByte() || (key >= 0.toByte()) && key != 0x79.toByte()) {
+                    Log.d(TAG, "power : ${key}")
+                    joystickPowerByte = key
+                } else {
+                    Log.d(TAG, "brake : ${key}")
+                    joystickBrakeByte = key
+                }
+
                 sendJoystickReport(byteArrayOf(
-                    joystickXByte,
-                    joystickYByte,
+                    joystickBrakeByte,
+                    joystickPowerByte,
                     0x00,
                     joystickButtonByte,
                     0x00,
@@ -268,10 +276,9 @@ object HidConsts {
         if (!TextUtils.isEmpty(usageStr)) {
             val key = usageStr.toInt().toByte()
             synchronized(HidConsts::class.java) {
-                joystickXByte = key
                 sendJoystickReport(byteArrayOf(
-                    joystickXByte,
-                    joystickYByte,
+                    joystickBrakeByte,
+                    joystickPowerByte,
                     0x00,
                     joystickButtonByte,
                     0x00,

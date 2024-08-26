@@ -110,6 +110,5 @@ class MainActivity : AppCompatActivity(), HidUtils.ConnectionStateChangeListener
         GlobalScope.launch(Dispatchers.Main) {
             binding.tvConnectStatus.text = getString(R.string.ununited)
         }
-
     }
 }
